@@ -1,18 +1,18 @@
 package xyz.w4ve.ripdeepslate.mixin;
 
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Items;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(AbstractBlock.AbstractBlockState.class)
+@Mixin(BlockBehaviour.BlockStateBase.class)
 public class AbstractBlockStateMixin {
 
     // Deepslate hardness (3.0) is exactly 2x stone's (1.5). Doubling the block-
@@ -25,15 +25,15 @@ public class AbstractBlockStateMixin {
     // server uses, so there is no crack animation, no ghost blocks and no desync.
     // A server-only version cannot do this because the vanilla client still thinks
     // deepslate is slow and fights the server's instant break.
-    @Inject(method = "calcBlockBreakingDelta", at = @At("RETURN"), cancellable = true)
-    private void ripdeepslate$mineLikeStone(PlayerEntity player, BlockView world, BlockPos pos, CallbackInfoReturnable<Float> cir) {
+    @Inject(method = "getDestroyProgress", at = @At("RETURN"), cancellable = true)
+    private void ripdeepslate$mineLikeStone(Player player, BlockGetter world, BlockPos pos, CallbackInfoReturnable<Float> cir) {
         BlockState state = (BlockState) (Object) this;
-        if (!state.isOf(Blocks.DEEPSLATE)) {
+        if (!state.is(Blocks.DEEPSLATE)) {
             return;
         }
-        if (!player.getMainHandStack().isOf(Items.NETHERITE_PICKAXE)) {
+        if (!player.getMainHandItem().is(Items.NETHERITE_PICKAXE)) {
             return;
         }
-        cir.setReturnValue(cir.getReturnValueF() * 2.0F);
+        cir.setReturnValue(cir.getReturnValue() * 2.0F);
     }
 }
