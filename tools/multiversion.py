@@ -33,15 +33,16 @@ JDK = pathlib.Path(os.environ.get("JAVA_HOME") or pathlib.Path.home() / ".local/
 TARGETS = {
     "1.21": "0.16.14",
     "26.2": "0.19.3",
+    "26.3": "0.19.5",
 }
 
 # Versions a shipped jar also runs on, so they are declared rather than built.
-COVERS = {}
+COVERS = {"1.21": ["1.21.1"]}
 
 # Versions whose jar is covered by another version's COVERS.
 SKIP = set()
 
-ORDER = ["1.21", "26.2"]
+ORDER = ["1.21", "1.21.1", "26.2", "26.3"]
 
 # RipDeepslate is so small that no renames have happened to it between 1.21 and
 # 26.2. The source is written against Mojang official names, which are the real
@@ -166,12 +167,20 @@ def build(version, loader, errors_only=False):
 
     properties.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
+    if version == "26.3":
+        wrapper = target / "gradle" / "wrapper" / "gradle-wrapper.properties"
+        wrapper.write_text(wrapper.read_text(encoding="utf-8")
+                           .replace("gradle-9.5.1-bin.zip", "gradle-9.6.0-bin.zip"),
+                           encoding="utf-8")
+
     manifest = target / "src" / "main" / "resources" / "fabric.mod.json"
     text = manifest.read_text(encoding="utf-8")
     text = re.sub(r'"minecraft": "[^"]*"', f'"minecraft": "{accepted_range(version)}"', text)
 
     if unobfuscated(version):
         text = re.sub(r'"java": ">=\d+"', '"java": ">=25"', text)
+    if version == "26.3":
+        text = re.sub(r'"fabricloader": "[^"]*"', '"fabricloader": ">=0.19.5"', text)
 
     manifest.write_text(text, encoding="utf-8")
 
@@ -207,10 +216,13 @@ def build(version, loader, errors_only=False):
         env={**os.environ, "JAVA_HOME": str(jdk_for(version))})
 
     if result.returncode != 0:
+        log = target / "build-failure.log"
+        log.write_text(result.stdout + result.stderr, encoding="utf-8")
         errors = [line for line in (result.stdout + result.stderr).splitlines()
                   if "error:" in line]
         print(f"  {version}: FAILED, {len(errors)} errors")
         report(errors, target, limit=None if errors_only else 12)
+        print(f"     Full build output: {log}")
         return None
 
     if errors_only:

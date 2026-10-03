@@ -27,15 +27,16 @@ The mod runs on **client and server**. That is the whole trick:
 
 ## Requirements
 
-- Minecraft **1.21**
-- **Fabric Loader** (0.16+)
+- Minecraft **1.21 / 1.21.1, 26.2 or 26.3**, using the matching jar
+- **Fabric Loader** (0.19.5+ for Minecraft 26.3)
+- Java 21 for Minecraft 1.21, Java 25 for Minecraft 26.x
 - A netherite pickaxe (and Efficiency V + Haste II if you want it fully instant)
 
 No Fabric API or other dependencies. Single jar.
 
 ## Installation
 
-Drop `ripdeepslate-x.y.z.jar` into your `mods/` folder.
+Drop `ripdeepslate-x.y.z+<minecraft-version>.jar` into your `mods/` folder. The `+1.21` jar also supports 1.21.1. Download a separate jar for 26.2 or 26.3.
 
 - **Players:** put it in `.minecraft/mods/` (or your instance's mods folder).
 - **Server:** put it in the server's `mods/` folder.
