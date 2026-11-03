@@ -4,6 +4,8 @@ Makes **deepslate mine exactly like stone** with a netherite pickaxe. With the s
 setup that lets you insta-mine stone (**Efficiency V + Haste II**), deepslate goes
 instant too. No more grinding through deepslate one slow crack at a time.
 
+![Mining deepslate with a netherite pickaxe, no crack animation](docs/img/mining.gif)
+
 Part of the [W4VE](https://github.com/CodeW4VE) family (Code Ware 4 Vanilla Experience).
 
 ## Requirements
